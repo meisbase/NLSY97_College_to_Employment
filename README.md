@@ -1,6 +1,7 @@
 # NLSY97_College_to_Employment
 
 * Last editted: 02/21/2025
+* This project is based on my master's thesis in OSU sociology: "Field of Study in College, Employment Divergences, and Gender Wage Gap."
 
 ## File Structure
 ```
