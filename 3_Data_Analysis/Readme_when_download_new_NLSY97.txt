@@ -15,7 +15,7 @@
 		* Replacement will wipe out the old files. 
 	
 	*4 : paste all the new files into "Data\Original_Data"
-		* Be careful -- not to move the file "0_Readme"!	
+		* Be careful -- not to move the file "Readme_when_download_new_NLSY97.txt"!	
 	*5: test
 		*1: Go to "Code".
 		*2: Run "1_csv_to_dta.do".
