@@ -1,0 +1,673 @@
+---
+title: "3_1_desc_stats"
+author: "Mei"
+date: "2024-10-18"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+## library
+library(knitr)
+library(tidyverse)
+library(haven)
+library(dplyr)
+library(ggplot2)
+library(glm2)
+library(lme4)
+library(lmerTest)
+library(readr)
+library(lubridate)
+
+```
+
+## Import data
+```{r Import data}
+# For office-PC
+setwd("C:/Users/kuo.355/OneDrive - The Ohio State University/1_Second_Year_Paper/3_Data_Analysis/Data")
+
+# For Macbook
+#setwd("/Users/kuomico/Library/CloudStorage/OneDrive-TheOhioStateUniversity/1_Second_Year_Paper/3_Data_Analysis/Data")
+# Load data
+dta_orig_long <- readRDS("Cleaned_Data/R/long_year.rds")
+df_control_year <- readRDS("Cleaned_Data/R/df_control_year.rds")
+
+```
+ 
+## Create alternative datadest: distinguish non-interviewed from not-employed 
+```{r alternatvie dataset}
+# Initialize
+df <- dta_orig_long
+
+# Indicator of never employed in observation period
+df_never <- df %>%
+  group_by(id) %>%
+  summarise(sum_job_year_hour = sum(job_year_hour, na.rm = TRUE)) %>%
+  mutate(job_never = ifelse(sum_job_year_hour == 0, 1, 0)) %>%
+  select(id, job_never) # Keep only the relevant columns
+
+  # Merge the indicator back into the original dataframe to preserve the structure
+  df <- df %>%
+    left_join(df_never, by = "id")
+
+  
+  
+# check prop. of not interviewed years
+na_proportion <- df %>% 
+  summarize(proportion_na = mean(is.na(intdate)))
+na_proportion 
+
+  ## 17.1% of person-years are not interviewed.
+
+# Distinguish Not-employed people: (job_full == "Not employed")
+  # 1) not employed : > 50% in job_avg_uemp_outofLF; > 50% in enroll
+  # 2) interviewed but skip/missing : job_avg_skip_missing
+  # 3) not interviewed : intdate
+
+na_proportion <- df %>% 
+  summarize(proportion_na = sum(job_full == "Not employed")/nrow(df))
+na_proportion 
+
+  ## 31.03% person-year are Not employed.
+na_proportion <- df %>% 
+  filter(job_full == "Not employed") %>%
+  summarize(proportion_uemp = mean(job_avg_uemp_outofLF), 
+            proportion_skip = mean(job_avg_skip_missing),
+            proportion_enroll = sum(enroll == "Enrolled", na.rm = T)/n(),
+            proportion_notint = mean(is.na(intdate)))
+na_proportion 
+
+  ## Among these not-emp person-years, 53% not employed/out of LF, 42.9% skip, 5% enroll, 36% not interviewed.
+
+#######################
+# WARNING: DROP SAMPLE
+#######################
+
+# Exclude the person-years of 
+# 1) not employed 2) emp/out of LF < 50% 3) not enrolled 4) not interviewed year.
+drop_sample <- df %>% 
+  filter(job_full == "Not employed" & 
+         job_avg_uemp_outofLF < .5 &
+         enroll != "Enrolled" &
+         is.na(intdate)) 
+nrow(drop_sample)/nrow(df)
+
+  ## 9% person-year will be removed.
+
+df <- df %>%
+   filter(!(job_full == "Not employed" & 
+         job_avg_uemp_outofLF < .5 &
+         enroll != "Enrolled" &
+         is.na(intdate)))
+nrow(df)/nrow(dta_orig_long)
+
+  ## 90.68% person-year remains.
+
+# Gen a count of valid waves across id
+df <- df %>%
+  group_by(id) %>%
+  mutate(valid_wave = n()) %>%
+  ungroup
+
+# Check
+summary(df)
+# Save data
+dta <- df
+
+```
+
+## Check sample selection process (Don't run unless necessarily.)
+# Part 1 criteria: 1) Valid BA dates, 2) >= 2 valid waves
+# Part 2 criteria: 1) Based on part 1, 2) >= 3 valid waves, 3) >=2 part-time/full-time waves with valid wages and EGP-class.
+```{r}
+df <- dta %>%
+  
+   # Sampling on 1) BA degrees holders 2) with valid college majors 3) years after attaining BA
+  filter(edu_degree %in% c("BA", "BA+"), 
+         !is.na(date_BA), 
+         major_apst %in% c("Academic non-STEM", "Academic STEM", "Applied non-STEM", "Applied STEM"),
+         flag_highest == 1) %>%
+  
+  # gen a interaction var to check
+  mutate(gendermajor = paste(gender, major_apst)) %>%
+  
+  group_by(id) %>%
+  mutate(valid_wave = n()) %>%
+  ungroup
+
+# Check #, gen X major of IDs that are never employed.
+## These ppl are controlled in part 1 analysis, and are excluded in part 2 analysis.
+table(df$job_never, df$gendermajor) ## 6 person-year for men; 8 person-year for women
+
+test <- df %>%
+  group_by(id) %>%
+  filter(year == min(year)) %>%
+  ungroup
+
+table(test$job_never, test$gendermajor) ## 1 man; 1 woman
+
+
+# Check #, gen X major of IDs that have only 1 valid wave, regardless of their EMP status in this wave.
+## These ppl are supposed to be removed from both part 1 & part 2 analysis.
+test <- df %>%
+  group_by(id) %>%
+  filter(year == min(year)) %>%
+  mutate(wave1 = ifelse(valid_wave == 1, 1, 0)) %>%
+  ungroup 
+  
+table(test$wave1, test$gendermajor) ## 3 man; 5 woman
+
+
+```
+
+
+############# X --> M: Gender X Edu Variation in Career Movements ### ## Cross-sectional ####################
+
+## Compute the overall # of movements
+```{r, include=F}
+# Locate data
+df <- dta 
+
+# Sampling on 1) BA degrees holders 2) with valid college majors 3) years after attaining BA
+list_var <- c("edu_degree", "major_apst", "flag_date_BA")
+summary(df %>% select(all_of(list_var)))
+table(df$edu_degree, df$major_apst) ## 312 + 364 person-years are missing in major
+
+############################################################################################################
+# Sample: Long-form. Obs starts after attaining highest degree. Do not apply for <HS & Missing.   
+# Missing (either true missing or non-interviewed is not addressed.)
+
+# Variable to be generated
+list_var <- c("id", "valid_wave", "shift_pos", "shift_neg", "shift_all", "n_out")
+
+df_sum <- df %>%
+  # sort the data
+  arrange(id, year) %>%
+  
+  # Sampling on 1) BA degrees holders 2) with valid college majors 3) years after attaining BA
+  filter(edu_degree %in% c("BA", "BA+"), 
+         !is.na(date_BA), 
+         major_apst %in% c("Academic non-STEM", "Academic STEM", "Applied non-STEM", "Applied STEM"),
+         flag_highest == 1) %>%
+  
+  # sort
+  group_by(id) %>%
+  
+  # Create a new column with the previous year's job_full status
+  mutate(
+    prev_job_full = lag(job_full)  
+  ) %>%
+
+  # Compare the current emp status with the previous wave
+  mutate(
+    shift_full_full = case_when(prev_job_full == "Full-time" & job_full == "Full-time" ~ 1, TRUE ~0),
+    shift_part_full = case_when(prev_job_full == "Part-time" & job_full == "Full-time" ~ 1, TRUE ~0),
+    shift_non_full = case_when(prev_job_full == "Not employed" & job_full == "Full-time" ~ 1, TRUE ~0),
+    shift_non_part = case_when(prev_job_full == "Not employed" & job_full == "Part-time" ~ 1, TRUE ~0),
+    
+    shift_full_part = case_when(prev_job_full == "Full-time" & job_full == "Part-time" ~ 1, TRUE ~0),
+    shift_full_non = case_when(prev_job_full == "Full-time" & job_full == "Not employed" ~ 1, TRUE ~0),
+    shift_part_non = case_when(prev_job_full == "Part-time" & job_full == "Not employed" ~ 1, TRUE ~0),
+    shift_non_non = case_when(prev_job_full == "Not employed" & job_full == "Not employed" ~ 1, TRUE ~0),
+    
+    shift_part_part = case_when(prev_job_full == "Part-time" & job_full == "Part-time" ~ 1, TRUE ~0)
+    
+  ) %>%
+  
+  summarise(
+    n_shift_full_full = sum(shift_full_full, na.rm = TRUE),
+    n_shift_part_full = sum(shift_part_full, na.rm = TRUE),
+    n_shift_non_full = sum(shift_non_full, na.rm = TRUE),
+    n_shift_non_part = sum(shift_non_part, na.rm = TRUE),
+    
+    n_shift_full_part = sum(shift_full_part, na.rm = TRUE),
+    n_shift_full_non = sum(shift_full_non, na.rm = TRUE),
+    n_shift_part_non = sum(shift_part_non, na.rm = TRUE),
+    n_shift_non_non = sum(shift_non_non, na.rm = TRUE),
+    
+    n_shift_part_part = sum(shift_part_part, na.rm = TRUE)
+    
+  ) %>%
+  mutate(
+    shift_pos = n_shift_full_full + n_shift_part_full + n_shift_non_full + n_shift_non_part,
+    shift_neg = n_shift_full_part + n_shift_full_non + n_shift_part_non + n_shift_non_non,
+    shift_all = n_shift_part_full + n_shift_non_full + n_shift_non_part + n_shift_full_part + n_shift_full_non + n_shift_part_non,
+    
+  ) 
+
+##########################################################################################
+
+# Check
+summary(df_sum)
+
+# merge it with id's demo characteristics
+list_var <- c("id", "gender", "race", "major_apst")
+df_sum_cross <- merge(df_sum, dta %>% 
+                        arrange(year) %>% 
+                        select(all_of(list_var)) %>% 
+                        group_by(id) %>% 
+                        slice(1), by="id")
+
+# gen interaction terms
+df_sum_cross <- df_sum_cross %>% mutate(genderrace = as.factor(paste(race, gender)),
+                    gendermajor = as.factor(paste(major_apst, gender)),
+                    racemajor = as.factor(paste(major_apst, race))
+                    )
+# Check
+summary(df_sum_cross)
+
+```
+
+## Desc. stats, cross-sectional
+```{r x--> M, desc, cross-sectional}
+# Initialize
+df <- df_sum_cross
+
+list_x <- c("gender", "major_apst", "gendermajor")
+list_y <- c("shift_pos", "shift_neg", "shift_all")
+
+for (i in 1:length(list_y)){
+  y <-list_y[i]
+  
+  for (j in 1:length(list_x)){
+  x <- list_x[j]
+ 
+  print(paste(x,y))
+  df_sum <- df %>% group_by(!!sym(x)) %>% 
+    summarize(y_mean = mean(!!sym(y), na.rm = TRUE), y_med = median(!!sym(y), na.rm = TRUE)) 
+  
+  print(df_sum)
+  }
+  
+}
+
+```
+
+### X --> M: Gender X Edu Variation in Career Movements ### ## Longitudinal
+## Compute time-varying Risks indicators
+```{r x--> M, risks, longitudinal}
+# Library
+library(dplyr)
+
+# Locate data
+df <- dta 
+
+############################################################################################################
+# Sample: Long-form. Obs starts after attaining highest degree. Do not apply for <HS & Missing.   
+# Missing (either true missing or non-interviewed is not addressed.)
+
+# Variable to be generated
+list_var <- c("id", "shift_pos", "shift_neg", "shift_all", "n_out")
+
+df_sum <- df %>%
+  # sort the data
+  arrange(id, year) %>%
+  
+  # Sampling on 1) BA degrees holders 2) with valid college majors 3) years after attaining BA
+  filter(edu_degree %in% c("BA", "BA+"), 
+         !is.na(date_BA), 
+         major_apst %in% c("Academic non-STEM", "Academic STEM", "Applied non-STEM", "Applied STEM"),
+         flag_highest == 1) %>%
+  
+  # group by id
+  group_by(id) %>%
+  
+  # Create a new column with the previous year's job_full status
+  mutate(
+    prev_job_full = lag(job_full)  
+  ) %>%
+
+  # Compare the current emp status with the previous wave
+  mutate(
+    shift_full_full = case_when(prev_job_full == "Full-time" & job_full == "Full-time" ~ 1, TRUE ~0),
+    shift_part_full = case_when(prev_job_full == "Part-time" & job_full == "Full-time" ~ 1, TRUE ~0),
+    shift_non_full = case_when(prev_job_full == "Not employed" & job_full == "Full-time" ~ 1, TRUE ~0),
+    shift_non_part = case_when(prev_job_full == "Not employed" & job_full == "Part-time" ~ 1, TRUE ~0),
+    
+    shift_full_part = case_when(prev_job_full == "Full-time" & job_full == "Part-time" ~ 1, TRUE ~0),
+    shift_full_non = case_when(prev_job_full == "Full-time" & job_full == "Not employed" ~ 1, TRUE ~0),
+    shift_part_non = case_when(prev_job_full == "Part-time" & job_full == "Not employed" ~ 1, TRUE ~0),
+    shift_non_non = case_when(prev_job_full == "Not employed" & job_full == "Not employed" ~ 1, TRUE ~0), 
+    
+    shift_part_part = case_when(prev_job_full == "Part-time" & job_full == "Part-time" ~ 1, TRUE ~0)
+    
+  ) %>%
+  
+  # summarize pos and neg movements, respectively
+  mutate(
+    shift_pos = shift_full_full + shift_part_full + shift_non_full + shift_non_part,
+    shift_neg = shift_full_part + shift_full_non + shift_part_non + shift_non_non,
+    shift_all = shift_part_full + shift_non_full + shift_non_part + shift_full_part + shift_full_non + shift_part_non,
+  ) %>%
+  
+  # Cumulative sums within each id over time
+  mutate(
+    cum_shift_pos = cumsum(shift_pos),
+    cum_shift_neg = cumsum(shift_neg),
+    cum_shift_all = cumsum(shift_all),
+    cum_shift_part = cumsum(shift_part_part)
+  ) %>%
+  
+  ungroup() 
+
+##################################################
+
+# check
+list_var <- c("id", "year", "prev_job_full", "shift_pos", "shift_neg", "shift_all", "cum_shift_pos", "cum_shift_neg", "cum_shift_all", "cum_shift_part")
+summary(df_sum %>% select(all_of(list_var))) # shift_* should range from 0 ~ 1
+summary(df_sum)
+length(unique(df_sum$id))
+# save data
+df_sum_long <- df_sum
+
+```
+
+## Export data
+```{r}
+library(foreign)
+
+# Save cross-sectional data
+df <- df_sum_cross
+# write.csv(df, "Cleaned_Data/R/sum_wide.csv", row.names = FALSE)
+saveRDS(df, "Cleaned_Data/R/df_sum_cross.rds")
+write.dta(df, "Cleaned_Data/R/df_sum_cross.dta")
+
+# Save longitudinal data
+df <- df_sum_long
+# write.csv(df, "Cleaned_Data/R/sum_wide.csv", row.names = FALSE)
+saveRDS(df, "Cleaned_Data/R/df_sum_long.rds")
+write.dta(df, "Cleaned_Data/R/df_sum_long.dta")
+
+```
+
+### X --> M ---> Y: Wage and Gender X Edu Variation in Career Movements ### ## Longitudinal
+## Import data
+```{r import data}
+# For office-PC
+setwd("C:/Users/kuo.355/OneDrive - The Ohio State University/1_Second_Year_Paper/3_Data_Analysis/Data")
+
+# For Macbook
+#setwd("/Users/kuomico/Library/CloudStorage/OneDrive-TheOhioStateUniversity/1_Second_Year_Paper/3_Data_Analysis/Data")
+
+# Load data
+dta <- readRDS("Cleaned_Data/R/df_sum_long.rds")
+
+```
+
+## Risks estimate model
+```{r}
+# Initialize
+df <- df_sum_long
+
+# risks modeling
+fit <- riskdiff(formula = shift_pos ~ gendermajor , data = df)
+summary(fit)
+
+# multi-level modeling
+m1 <- glmer(shift_pos ~ 1 + gender + major_apst   
+                       + age + age^2
+                       +  (1 | id),nAGQ=0,
+                       data = df, family = "binomial")
+summary(m1)
+
+```
+
+
+
+## Reference of GLM
+```{r random effect model (unweighted), include=F}
+list_y <- c("rsecure_bi","rjstres_bi","rcidisymp")
+list_x <- c("rjoldreta_bi", "rjpromynga_bi")
+list_m <- list()
+
+filename <- paste("random_intercept_unweight",".csv",sep="")
+write.table("", filename, row.names="", sep=",")
+
+counter <- 1
+for (y in list_y){
+  for (x in list_x){
+  
+  print(paste(y,x))
+    
+  df <- dta
+  df[,"yv"] <- NA
+  df[,"xv"] <- NA
+  df[,"yv"] <- df[,y]
+  df[,"xv"] <- df[,x]
+  
+  if (counter < 5){
+    m1 <- glmer(yv ~ 1 + xv + rage_y 
+                       + f_die + n_m_int + riwbeg_y
+                       + rage_y:rage_y
+                       +  (1 | hhidpn),nAGQ=0,
+                       data = df, family = "binomial")
+    summary(m1)
+    m2 <- glmer(yv ~ 1 + xv + rage_y 
+                       + f_die + n_m_int + riwbeg_y
+                       + ragender + race_hisp + redu
+                       + rjcten + rjcocc + riearn_ln + rfsize_ln 
+                       + rage_y:rage_y
+                       +  (1 | hhidpn),nAGQ=0,
+                       data = df, family = "binomial")
+    
+    ## m1
+  summary_df <- as.data.frame(coefficients(summary(m1)))
+  summary_df <- summary_df %>%
+  mutate(significance = ifelse(summary_df$`Pr(>|z|)` > .05, "",
+                        ifelse(summary_df$`Pr(>|z|)`>.01,"*",
+                        ifelse(summary_df$`Pr(>|z|)`>.001,"**","***"))))
+  
+  list_m[[y]][[x]][["m1_cof"]] <- summary_df
+  list_m[[y]][[x]][["m1_AIC"]] <- AIC(m1)
+  list_m[[y]][[x]][["m1_BIC"]] <- BIC(m1)
+  list_m[[y]][[x]][["m1_LL"]] <- logLik(m1)
+  list_m[[y]][[x]][["m1_ran_var"]] <- VarCorr(m1)$hhidpn[1]
+  
+  random_effects_variance <- VarCorr(m1)$hhidpn
+  random_effects_std_dev <- sqrt(diag(random_effects_variance))
+  list_m[[y]][[x]][["m1_ran_std"]] <- random_effects_std_dev[1]
+  
+  list_m[[y]][[x]][["m1_nobs"]] <- nobs(m1)
+  
+  ## m2
+  summary_df <- as.data.frame(coefficients(summary(m2)))
+  summary_df <- summary_df %>%
+  mutate(significance = ifelse(summary_df$`Pr(>|z|)` > .05, "",
+                        ifelse(summary_df$`Pr(>|z|)`>.01,"*",
+                        ifelse(summary_df$`Pr(>|z|)`>.001,"**","***"))))
+  
+  list_m[[y]][[x]][["m2_cof"]] <- summary_df
+  list_m[[y]][[x]][["m2_AIC"]] <- AIC(m2)
+  list_m[[y]][[x]][["m2_BIC"]] <- BIC(m2)
+  list_m[[y]][[x]][["m2_LL"]] <- logLik(m2)
+  list_m[[y]][[x]][["m2_ran_var"]] <- VarCorr(m2)$hhidpn[1]
+  
+  random_effects_variance <- VarCorr(m2)$hhidpn
+  random_effects_std_dev <- sqrt(diag(random_effects_variance))
+  list_m[[y]][[x]][["m2_ran_std"]] <- random_effects_std_dev[1]
+  
+  list_m[[y]][[x]][["m2_nobs"]] <- nobs(m2)
+ 
+  }else{
+    
+    # Y: rcidisymp <- continuous
+    m1 <- lmer(yv ~ 1 + xv + rage_y 
+                       + f_die + n_m_int + riwbeg_y
+                       + rage_y:rage_y
+                       +  (1 | hhidpn),
+                       data = df)
+    m2 <- lmer(yv ~ 1 + xv + rage_y 
+                       + f_die + n_m_int + riwbeg_y
+                       + ragender + race_hisp + redu
+                       + rjcten + rjcocc + riearn_ln + rfsize_ln 
+                       + rage_y:rage_y
+                       +  (1 | hhidpn),
+                       data = df)
+    
+    ## m1
+  summary_df <- as.data.frame(coefficients(summary(m1)))
+  summary_df <- summary_df %>%
+  mutate(significance = ifelse(summary_df$`Pr(>|t|)` > .05, "",
+                        ifelse(summary_df$`Pr(>|t|)`>.01,"*",
+                        ifelse(summary_df$`Pr(>|t|)`>.001,"**","***"))))
+  
+  list_m[[y]][[x]][["m1_cof"]] <- summary_df
+  list_m[[y]][[x]][["m1_AIC"]] <- AIC(m1)
+  list_m[[y]][[x]][["m1_BIC"]] <- BIC(m1)
+  list_m[[y]][[x]][["m1_LL"]] <- logLik(m1)
+  list_m[[y]][[x]][["m1_ran_var"]] <- VarCorr(m1)$hhidpn[1]
+  
+  random_effects_variance <- VarCorr(m1)$hhidpn
+  random_effects_std_dev <- sqrt(diag(random_effects_variance))
+  list_m[[y]][[x]][["m1_ran_std"]] <- random_effects_std_dev[1]
+  
+  list_m[[y]][[x]][["m1_nobs"]] <- nobs(m1)
+  
+  ## m2
+  summary_df <- as.data.frame(coefficients(summary(m2)))
+  summary_df <- summary_df %>%
+  mutate(significance = ifelse(summary_df$`Pr(>|t|)` > .05, "",
+                        ifelse(summary_df$`Pr(>|t|)`>.01,"*",
+                        ifelse(summary_df$`Pr(>|t|)`>.001,"**","***"))))
+  
+  list_m[[y]][[x]][["m2_cof"]] <- summary_df
+  list_m[[y]][[x]][["m2_AIC"]] <- AIC(m2)
+  list_m[[y]][[x]][["m2_BIC"]] <- BIC(m2)
+  list_m[[y]][[x]][["m2_LL"]] <- logLik(m2)
+  list_m[[y]][[x]][["m2_ran_var"]] <- VarCorr(m2)$hhidpn[1]
+  
+  random_effects_variance <- VarCorr(m2)$hhidpn
+  random_effects_std_dev <- sqrt(diag(random_effects_variance))
+  list_m[[y]][[x]][["m2_ran_std"]] <- random_effects_std_dev[1]
+  
+  list_m[[y]][[x]][["m2_nobs"]] <- nobs(m2)
+ 
+  
+    
+  }
+  
+  ## write m1
+    write.table(paste("IV :", x,";" ,"DV :", y), filename, row.names=T, sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m1_cof"]], filename, row.names=T, sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m1_ran_var"]], filename, row.names="random_intercept_variance", sep=",", append=TRUE)
+     write.table(list_m[[y]][[x]][["m1_ran_std"]], filename, row.names="random_intercept_std_dev", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m1_AIC"]], filename, row.names="AIC", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m1_BIC"]], filename, row.names="BIC", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m1_LL"]], filename, row.names="Log-Likelihood", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m1_nobs"]], filename, row.names="observations", sep=",", append=TRUE)
+   
+   ## write m2  
+     
+    write.table(list_m[[y]][[x]][["m2_cof"]], filename, row.names=T, sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m2_ran_var"]], filename, row.names="random_intercept_variance", sep=",", append=TRUE)
+     write.table(list_m[[y]][[x]][["m2_ran_std"]], filename, row.names="random_intercept_std_dev", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m2_AIC"]], filename, row.names="AIC", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m2_BIC"]], filename, row.names="BIC", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m2_LL"]], filename, row.names="Log-Likelihood", sep=",", append=TRUE)
+    write.table(list_m[[y]][[x]][["m2_nobs"]], filename, row.names="observations", sep=",", append=TRUE)
+    
+  counter <- counter + 1
+  }
+
+}
+
+
+
+```
+
+########################
+## Y: Wage
+save the following individual-aggregate vars in list_sum
+```{r wage, eval=F, include=F}
+# Initialize a list for saving
+list_sum <- list()
+
+# Locate data
+df <- dta_orig_long
+
+# 3 measures: First, Last measure, Change 
+
+# Sample: Long-form.1 Obs starts after attaining highest degree.
+# Exclude wage == 0
+df_sum <- df %>% filter(flag_highest == 1) %>%
+  arrange(id, cw) %>%
+  group_by(id) %>% 
+  summarize(
+    wage_1 = first(na.omit(job_wage[job_wage != 0])), 
+    cw_1 = cw[which.min(is.na(job_wage) | job_wage == 0)],
+    wage_n = last(na.omit(job_wage[job_wage != 0])),
+    cw_n = cw[rev(which(!is.na(job_wage) & job_wage != 0))[1]],
+    wage_n1 = last(na.omit(job_wage[job_wage != 0])) - first(na.omit(job_wage[job_wage != 0])),
+    job_tenure = cw[rev(which(!is.na(job_wage) & job_wage != 0))[1]] - cw[which.min(is.na(job_wage) | job_wage == 0)]
+    
+  ) %>%
+  ungroup()
+  
+# Merge the IVs back with df_sum
+list_var <- c("id", "gender",  "race", "p_edu", "edu_degree", "citizen", 
+              "major_apst")
+df <- dta_orig_wide %>% 
+      select(id, all_of(list_var))
+
+df_sum <- merge(df_sum, df, by = "id",all.y = T)
+
+# Check
+summary(df_sum)
+
+# Save data
+list_sum[["Y"]] <- df_sum
+
+```
+
+
+## Plotting: Y: 6 measures of career interruptions, X: gender & educational level
+```{r}
+library(ggplot2)
+
+# Locate used data
+df <- df_sum
+
+
+# Sample: All but missing in edu_degree
+list_var <- c("n_shift_emp", "n_shift_egp", "n_emp", "n_8egp","n_shift_full", "n_shift_part")
+list_var_lab <- c("# Changing employers", "# Changing EGP occupations",
+                  "# unique employers", "# unique EGP occupations",
+                  "# Changing labor force status: Paid work/Out of labor force",
+                  "# Changing labor force status: Full-time/Part-time/Out of labor force")
+
+for (i in 1:length(list_var)) {
+  
+  var <- list_var[[i]]
+  var_lab <- list_var_lab[[i]]
+  
+  p <- ggplot(filter(df,major_apst %in% c("Academic non-STEM", "Academic STEM", "Applied non-STEM", "Applied STEM")),
+              aes(x = major_apst, y = .data[[var]], fill = major_apst)) + 
+    geom_bar(stat = "summary", fun = "mean") + 
+    geom_errorbar(stat = "summary", fun.data = "mean_se", fun.args = list(mult = 1.96)) +
+    stat_summary(
+      aes(label = round(..y.., 3)), 
+      geom = "text", 
+      fun = mean, 
+      vjust = 1.5, 
+      color = "white", 
+      size = 3.5
+    ) +
+    facet_wrap(~gender) +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(title = var_lab)  
+  
+  show(p)
+  list_plot[["major"]][[var]] <- p
+  
+}
+
+
+
+
+```
+
+
+
+
+
