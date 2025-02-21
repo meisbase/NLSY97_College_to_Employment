@@ -24,7 +24,7 @@
 │   ├── Weight
 ├── Documents_and_Construction_of_Key_Vars
 ├── varlist.xlsx
-├── Readme_when_download_new_NLSY97.md
+├── Readme_when_download_new_NLSY97.txt
 ```
 
 ## Overview
