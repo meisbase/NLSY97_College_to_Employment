@@ -32,8 +32,9 @@ building employment history, and categorizing occupational status following
 [Steve Morgan's (2017) EGP 12-class classification](https://gss.norc.org/content/dam/gss/get-documentation/pdf/reports/methodological-reports/MR125.pdf).
 
 ## Data
-The data used in this project is from the public-use NLSY97 database (National Longitudinal Survey of Youth 1997). 
-Only selected variables (see var_list.xlsx) are included in this repository. If additional variables are needed, please refer to the [official NLSY website](https://www.nlsinfo.org/investigator/pages/home).
+* The data used in this project is from the public-use NLSY97 database (National Longitudinal Survey of Youth 1997). 
+* Only selected variables (see var_list.xlsx) are included. If additional variables are needed, please refer to the [official NLSY website](https://www.nlsinfo.org/investigator/pages/home).
+* (02212025 update) Data files are not included in this repository! Still figuring out how to store large data here.
 
 ## Code
 Under construction...
