@@ -1,10 +1,22 @@
 # NLSY97_College_to_Employment
 
+* Last editted: 02/21/2025
+
 ## File Structure
 ```
 ├── Code 
-│   ├── STATA
-│   ├── R
+│   ├── 1_csv_to_dta.do
+│   ├── 2_0_prepare_data.do
+│   │   ├── 2_2_dem.do
+│   │   ├── 2_3_dem_timevary.do
+│   │   ├── 2_4_edu.do
+│   │   ├── 2_4_edu_check.do
+│   │   ├── 2_5_emp.do
+│   ├── 2_5_emp.do (Not used)
+│   ├── 2_0_prepare_data.do
+│   ├── Backup
+│   │   ├── 2_5_emp_week.do
+│   │   ├── 4_1_figure.rmd
 ├── Data
 │   ├── Original_Data
 │   ├── Cleaned_Data
@@ -24,7 +36,7 @@ The data used in this project is from the public-use NLSY97 database (National L
 Only selected variables (see var_list.xlsx) are included in this repository. If additional variables are needed, please refer to the [official NLSY website](https://www.nlsinfo.org/investigator/pages/home).
 
 ## Code
-
+Under construction...
 
 ## Documents_and_Construction_of_Key_Vars
 This folder includes:
