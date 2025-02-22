@@ -1,10 +1,10 @@
 # NLSY97_College_to_Employment
-* Last editted: 02/21/2025
+* Last editted: 02/22/2025
 * This project is based on my master's thesis in OSU sociology: "Field of Study in College, Employment Divergences, and Gender Wage Gap."
 
 ## To-do list
-* comment the reshaping part line 423- in "2_0_prepare.do"
-* 
+* Reflection: next project should doc "used data" "output" and their location.
+* remove 2_emp_week_do. It is the outdated version of 2_emp.do.
 
 ## File Structure
 ```
@@ -38,39 +38,48 @@ building employment and wage history, and categorizing occupational status follo
 * The data used in this project is from the public-use NLSY97 database (National Longitudinal Survey of Youth 1997). 
 * Only selected variables (see var_list.xlsx) are included. If additional variables are needed, please refer to the [official NLSY website](https://www.nlsinfo.org/investigator/pages/home).
 * (02212025 update) Data files are not included in this repository! Still figuring out how to store large data here.
+* (02222025 update) Can upload the key data only, i.e., key input and output data.
 
 ## Code
 This folder includes STATA and Rmd code on 1) importing NLSY97 raw data, 2) cleaning and reshaping data, 3) analyzing data, step by step.
 
 ### Cleaning data
-* 1_csv_to_dta.do : Transform raw NLSY97 data (csv) to STATA data format (csv) & label variables.
-  * Input: 97.csv
-  * Output: 97.dta
+* 1_csv_to_dta.do : Transform raw NLSY97 data (csv) to STATA data format (dta) & label variables.
+  * Input : Original_Data/97.csv
+  * Output : Cleaned_Data/97.dta
     <br>
-* 2_0_prepare_data.do : This is the "run_all_the_code" do file for cleaning data. Executing this including running all the do.file in its next level.
-  * Input: 97.dta
+* 2_0_prepare_data.do : This is the "run_all_the_code" do file for cleaning data. Executing this will run all the 2_x do.files.
+  * Input : 97.dta
+  * Key output : Cleaned_Data/step12345_wide.csv (yearly, exp employment),  Cleaned_Data/step5_wide.csv (weekly, employment only).
   * 2_2_dem.do : construct time-constant demographic variables. Wide-form.
   * 2_3_dem_timevary.do : construct time-varying demographic variables. Variable's naming format: var_`month'. Wide-form.
-  * 2_4_edu.do : Construct the respondent's college enrollment history, monthly. Then, link it to college unique id (which is constructed using college_term_year, c_t_y variblae) to identify field of study.
+  * 2_4_edu.do : Construct the respondent's college enrollment history, monthly.
+    Then, link it to college unique id (which is constructed using college_term_year, c_t_y variable) to identify which college they studied in a given month.
   * 2_4_edu_check.do : Check if there is double enrollment i.e., the respondent enrolled in 2+ college in the same month. These cases are not significant (4%) so I simply kept the first identified value and drop others.
   * 2_5_emp.do : Constructing the respondent's weekly employment history.  <br>
     I classified R's occupational status by classifiying their job by Morgan's (2017) classification.
-  * Key output: step12345_wide.dta
 
-* Reshape data: So now the full wide form data, containing the respondents' college major and weekly employment history (weekly), is prepared. 
-* ###### Re-check what's the output of 2_5_emp.do? Weekly or monthly? Does it match with reshape Rmd?
-* ###### Reflection: next project should doc "used data" "output" and their location.
+### Reshaping data (wide --> long)
+* There are two steps for restructing the data. First, reshaping the wide form data (weekly) . Second, aggregate this weekly long-form data to obtain a yearly long-form data.
+* 2_reshape.rmd
+ * Input : Cleaned_Data/step1245_wide.csv
+ * Output : Cleaned_Data/R/long.rds, Cleaned_Data/R/wide.rds
+ * Purpose : Reshaping the wide form data (weekly), including demographic and employment variables.
+* 2_reshape_emp.rmd
+ * Input: Cleaned_Data/step1245_wide.csv
  
 
 ### Analzing data 
-To accelarate the process, I selected on those have attained a bachelor's degree by the last available survey. Approximately 25% individuals remain the the analyzed sample.
+#### 3_1_x : Construct key variables: employment movement and educational degree attainment status. Observation starts when the respodent attained their BA degree.
+As this study focus on the impact of college major, I selected on those have attained a bachelor's degree by the last available survey. Approximately 25% individuals remain the the analyzed sample.
 * 3_1_cleaned.do (02222025 note: Check this on office-PC. This file is blank on personal's.)
 * 3_1_desc_stats.Rmd : 
 * 3_1_desc_stats_emp.Rmd : Classifying the respondent's employment dynacmics from month to month. Specifically their change in occupational status, change in employment status, and change in employers. Every trunk after "# Export data" is for reference; they are codes for risk model and GLM in R. I did not use them in my analysis as I did all my analysis in STATA to ensure consistency.
+
+#### 3_2, 3_3: This is where we obtained descriptive statistics, statistical models, and most importantly, tables and figures!
 * 3_2_desc.do : 
 * 3_3_model.do
 * Backup
-  * 2_5_emp_week.do : If one planned to analyze weekly instead of monthly data, check out this file. Remember you may like to construct other time-varying variables in weekly manner as well.
   * 4_1_figure.rmd : Alternatively, one can use R for visualizing results. Samples for visualizing descriptive stats and linear regression are included.
 
 
