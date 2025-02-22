@@ -416,7 +416,7 @@
 	export delimited step12345_wide.csv, replace
 	sum id /* Should = 8,984 */
 	*********************************************************
-	
+	/*
 	
 	* 5) reshape from wide to long
 	use "step12345_wide.dta", clear
@@ -555,11 +555,11 @@
 	quietly compress
 	save "97_cleaned.dta", replace
 	 
-	 
+	 */
 /******************************************************************************/
 /*99: Done                                                      */
 /******************************************************************************/
-log close
+*log close
 
 
 
