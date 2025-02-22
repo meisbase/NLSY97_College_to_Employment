@@ -63,10 +63,11 @@ This folder includes STATA and Rmd code on 1) importing NLSY97 raw data, 2) clea
 ### Reshaping data (wide --> long)
 * There are two steps for restructing the data. First, reshaping the wide form data (weekly) . Second, aggregate this weekly long-form data to obtain a yearly long-form data.
 
-* 2_reshape_emp.rmd **should be detail**
+* 2_reshape_emp.rmd 
   * Input : Cleaned_Data/step1245_wide.csv, ****Cleaned_Data/R/df_control_year.rds (2)****
   * Output : Cleaned_Data/R/long_year.rds, ****Cleaned_Data/R/df_control_year.rds (1)****
-  * Purpose : Reshaping the wide form data (weekly), including demographic and employment variables. 
+  * Purpose : Reshaping the wide form data (weekly), including demographic and employment variables.
+  * How to use : You have to manually update the parameter in part 0 and re-run each chunk with label **Re-run**. It should take about an hour to go through every slice of data.
 
 ### Analzing data 
 #### 3_1_x : Construct key variables: employment movement and educational degree attainment status. Observation starts when the respodent attained their BA degree.
