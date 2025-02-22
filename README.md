@@ -5,6 +5,7 @@
 ## To-do list
 * Reflection: next project should doc "used data" "output" and their location.
 * remove 2_emp_week_do. It is the outdated version of 2_emp.do.
+* remove 3_desc_stats.rmd, 2_reshape.rmd
 
 ## File Structure
 ```
@@ -49,10 +50,10 @@ This folder includes STATA and Rmd code on 1) importing NLSY97 raw data, 2) clea
   * Output : Cleaned_Data/97.dta
     <br>
 * 2_0_prepare_data.do : This is the "run_all_the_code" do file for cleaning data. Executing this will run all the 2_x do.files.
-  * Input : 97.dta
+  * Input : Cleaned_Data/97.dta
   * Key output : Cleaned_Data/step12345_wide.csv (yearly, exp employment),  Cleaned_Data/step5_wide.csv (weekly, employment only).
   * 2_2_dem.do : construct time-constant demographic variables. Wide-form.
-  * 2_3_dem_timevary.do : construct time-varying demographic variables. Variable's naming format: var_`month'. Wide-form.
+  * 2_3_dem_timevary.do : construct time-varying demographic variables. Wide-form.
   * 2_4_edu.do : Construct the respondent's college enrollment history, monthly.
     Then, link it to college unique id (which is constructed using college_term_year, c_t_y variable) to identify which college they studied in a given month.
   * 2_4_edu_check.do : Check if there is double enrollment i.e., the respondent enrolled in 2+ college in the same month. These cases are not significant (4%) so I simply kept the first identified value and drop others.
@@ -61,24 +62,36 @@ This folder includes STATA and Rmd code on 1) importing NLSY97 raw data, 2) clea
 
 ### Reshaping data (wide --> long)
 * There are two steps for restructing the data. First, reshaping the wide form data (weekly) . Second, aggregate this weekly long-form data to obtain a yearly long-form data.
-* 2_reshape.rmd
- * Input : Cleaned_Data/step1245_wide.csv
- * Output : Cleaned_Data/R/long.rds, Cleaned_Data/R/wide.rds
- * Purpose : Reshaping the wide form data (weekly), including demographic and employment variables.
-* 2_reshape_emp.rmd
- * Input: Cleaned_Data/step1245_wide.csv
- 
+
+* 2_reshape_emp.rmd **should be detail**
+  * Input : Cleaned_Data/step1245_wide.csv, ****Cleaned_Data/R/df_control_year.rds (2)****
+  * Output : Cleaned_Data/R/long_year.rds, ****Cleaned_Data/R/df_control_year.rds (1)****
+  * Purpose : Reshaping the wide form data (weekly), including demographic and employment variables. 
 
 ### Analzing data 
 #### 3_1_x : Construct key variables: employment movement and educational degree attainment status. Observation starts when the respodent attained their BA degree.
 As this study focus on the impact of college major, I selected on those have attained a bachelor's degree by the last available survey. Approximately 25% individuals remain the the analyzed sample.
-* 3_1_cleaned.do (02222025 note: Check this on office-PC. This file is blank on personal's.)
-* 3_1_desc_stats.Rmd : 
-* 3_1_desc_stats_emp.Rmd : Classifying the respondent's employment dynacmics from month to month. Specifically their change in occupational status, change in employment status, and change in employers. Every trunk after "# Export data" is for reference; they are codes for risk model and GLM in R. I did not use them in my analysis as I did all my analysis in STATA to ensure consistency.
+  
+* 3_1_desc_stats_emp.Rmd : 
+  * Input : Cleaned_Data/R/long_year.rds, Cleaned_Data/R/df_control_year.rds
+  * Output : Cleaned_Data/R/df_sum_cross.dta, Cleaned_Data/R/df_sum_long.dta
+  * Purpose : Constructing variables to identify the respondent's change in employment status from year to year, e.g., from full-time employed to part-time employed, or from not employed to full-time employed.
+    
+* 3_1_cleaned.do
+  * Input : Cleaned/R/df_sum_long.dta
+  * Output : Cleaned_Data/R/used_M.dta (employment as outcome variable); Cleaned_Data/R/used_Y.dta (wage as outcome variable, and lag employment variable (which is independent variable) for one year);
+    Cleaned_Data/R/used_Y_unlagged.dta (wage as outcome variable).
+  * Purpose : Drop years where the respondent had no valid employment or wages. Construct three subsets of data for analysis.
 
-#### 3_2, 3_3: This is where we obtained descriptive statistics, statistical models, and most importantly, tables and figures!
-* 3_2_desc.do : 
+#### 3_2, 3_3 : This is where we obtained descriptive statistics, statistical models, and most importantly, tables and figures!
+* 3_2_desc.do
+  * Input : Cleaned_Data/R/used_M.dta, Cleaned_Data/R/used_Y.dta, Cleaned_Data/R/used_Y_unlagged.dta
+  * Output : descriptive statistic tables.
+  * Purpose : Obtain descriptive stats of time-constant and time-varying variables. Export tables.
 * 3_3_model.do
+  * Input : Cleaned_Data/R/used_M.dta, Cleaned_Data/R/used_Y.dta, Cleaned_Data/R/used_Y_unlagged.dta
+  * Output : Event history analysis results table, growth curve model results tables, figures.
+  * Purpose : Conduct multilevel regression analysis, making margin plots.
 * Backup
   * 4_1_figure.rmd : Alternatively, one can use R for visualizing results. Samples for visualizing descriptive stats and linear regression are included.
 
