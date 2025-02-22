@@ -2,6 +2,10 @@
 * Last editted: 02/21/2025
 * This project is based on my master's thesis in OSU sociology: "Field of Study in College, Employment Divergences, and Gender Wage Gap."
 
+## To-do list
+* comment the reshaping part line 423- in "2_0_prepare.do"
+* 
+
 ## File Structure
 ```
 ├── Code 
@@ -40,13 +44,18 @@ This folder includes STATA and Rmd code on 1) importing NLSY97 raw data, 2) clea
 
 ### Cleaning data
 * 1_csv_to_dta.do : Transform raw NLSY97 data (csv) to STATA data format (csv) & label variables.
+  * Input: 97.csv
+  * Output: 97.dta
+    <br>
 * 2_0_prepare_data.do : This is the "run_all_the_code" do file for cleaning data. Executing this including running all the do.file in its next level.
+  * Input: 97.dta
   * 2_2_dem.do : construct time-constant demographic variables. Wide-form.
   * 2_3_dem_timevary.do : construct time-varying demographic variables. Variable's naming format: var_`month'. Wide-form.
   * 2_4_edu.do : Construct the respondent's college enrollment history, monthly. Then, link it to college unique id (which is constructed using college_term_year, c_t_y variblae) to identify field of study.
   * 2_4_edu_check.do : Check if there is double enrollment i.e., the respondent enrolled in 2+ college in the same month. These cases are not significant (4%) so I simply kept the first identified value and drop others.
   * 2_5_emp.do : Constructing the respondent's weekly employment history.  <br>
     I classified R's occupational status by classifiying their job by Morgan's (2017) classification.
+  * Key output: step12345_wide.dta
 
 * Reshape data: So now the full wide form data, containing the respondents' college major and weekly employment history (weekly), is prepared. 
 * ###### Re-check what's the output of 2_5_emp.do? Weekly or monthly? Does it match with reshape Rmd?
