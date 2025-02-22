@@ -43,11 +43,10 @@ This folder includes STATA and Rmd code on 1) importing NLSY97 raw data, 2) clea
 * 2_0_prepare_data.do : This is the "run_all_the_code" do file for cleaning data. Executing this including running all the do.file in its next level.
   * 2_2_dem.do : construct time-constant demographic variables. Wide-form.
   * 2_3_dem_timevary.do : construct time-varying demographic variables. Variable's naming format: var_`month'. Wide-form.
-  * 2_4_edu.do : Locating the respondents' college enrollment history ###### Re-check
-  * 2_4_edu_check.do : Check if there is double enrollment i.e., the respondent enrolled in 2+ college in the same month. ###### Re-check
-  * 2_5_emp.do : Constructing the respondent's monthly employment history. The raw data documents weekly employment history and we will. <br>
-    If R adopts 2+ jobs in a given month, I identified the main job by recognizing the job which the respondent devoted most time to in that given month. <br>
-    I classified R's occupational status by classifiying their job by Morgan's (2017) classification. ###### Re-check
+  * 2_4_edu.do : Construct the respondent's college enrollment history, monthly. Then, link it to college unique id (which is constructed using college_term_year, c_t_y variblae) to identify field of study.
+  * 2_4_edu_check.do : Check if there is double enrollment i.e., the respondent enrolled in 2+ college in the same month. These cases are not significant (4%) so I simply kept the first identified value and drop others.
+  * 2_5_emp.do : Constructing the respondent's weekly employment history.  <br>
+    I classified R's occupational status by classifiying their job by Morgan's (2017) classification.
 
 * Reshape data: So now the full wide form data, containing the respondents' college major and weekly employment history (weekly), is prepared. 
 * ###### Re-check what's the output of 2_5_emp.do? Weekly or monthly? Does it match with reshape Rmd?
