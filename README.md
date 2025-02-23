@@ -9,6 +9,7 @@
 * remove 3_desc_stats.rmd, 2_reshape.rmd
 * upload data folder
 * upload MA-thesis folder
+  * upload final tables and figures to STATA_Outputs folder.
 
 ## File Structure
 ```
@@ -121,6 +122,9 @@ This folder includes:
 
 ## MA-thesis
 * This folder contain 1) a folder "STATA_Outpus", chosen tables and figures from 3_2_desc.do and 3_3_model.do, and 2) Rmarkdown documents written in LaTeX for reporting and visualization.
+
+## Visualization and Outputs
+Please find them in MA-thesis/STATA_outputs.
 
 ## Research Context
 This analysis is a core component of my master's thesis, which is currently being revised for submission to an academic journal. Please respect the originality and do not use these ideas without permission.
