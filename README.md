@@ -6,6 +6,7 @@
 * Reflection: next project should doc "used data" "output" and their location.
 * remove 2_emp_week_do. It is the outdated version of 2_emp.do.
 * remove 3_desc_stats.rmd, 2_reshape.rmd
+* upload data folder
 
 ## File Structure
 ```
@@ -61,7 +62,6 @@ This folder includes STATA and Rmd code on 1) importing NLSY97 raw data, 2) clea
     I classified R's occupational status by classifiying their job by Morgan's (2017) classification.
 
 ### Reshaping data (wide --> long)
-* There are two steps for restructing the data. First, reshaping the wide form data (weekly) . Second, aggregate this weekly long-form data to obtain a yearly long-form data.
 
 * 2_reshape_emp.rmd 
   * Input : Cleaned_Data/step1245_wide.csv, ****Cleaned_Data/R/df_control_year.rds (2)****
