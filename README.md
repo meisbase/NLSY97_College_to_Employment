@@ -7,6 +7,7 @@
 * remove 2_emp_week_do. It is the outdated version of 2_emp.do.
 * remove 3_desc_stats.rmd, 2_reshape.rmd
 * upload data folder
+* upload MA-thesis folder
 
 ## File Structure
 ```
@@ -18,7 +19,10 @@
 │   │   ├── 2_4_edu.do
 │   │   ├── 2_4_edu_check.do
 │   │   ├── 2_5_emp.do
-│   ├── 3_.do
+│   ├── 3_1_desc_stats_emp.Rmd
+│   ├── 3_1_cleaned.do
+│   ├── 3_2_desc.do
+│   ├── 3_3_model.do
 │   ├── Backup
 │   │   ├── 2_5_emp_week.do
 │   │   ├── 4_1_figure.rmd
@@ -26,6 +30,10 @@
 │   ├── Original_Data
 │   ├── Cleaned_Data
 │   ├── Weight
+│── MA-thesis (Under Construction)
+│   ├── STATA_Outputs
+│   ├── 0_index.rmd
+│   ├── 1_abstract.rmd
 ├── Documents_and_Construction_of_Key_Vars
 ├── varlist.xlsx
 ├── Readme_when_download_new_NLSY97.txt
@@ -109,6 +117,9 @@ This folder includes:
 * The repository includes varlist.xlsx, which contains a list of variables currently available in this dataset. Before using new variables, check this file to see if your target variable is already included.
 * If your required variable is missing, retrieve the data from the NLSY97 official website and merge it into this dataset.
 * Follow the instructions in Readme_when_download_new_NLSY97.txt when merging new data to maintain consistency.
+
+## MA-thesis
+* This folder contain 1) a folder "STATA_Outpus", chosen tables and figures from 3_2_desc.do and 3_3_model.do, and 2) Rmarkdown documents written in LaTeX for reporting and visualization.
 
 ## Research Context
 This analysis is a core component of my master's thesis, which is currently being revised for submission to an academic journal. Please respect the originality and do not use these ideas without permission.
