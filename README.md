@@ -1,6 +1,7 @@
 # NLSY97_College_to_Employment
 * Last editted: 02/22/2025
 * This project is based on my master's thesis in OSU sociology: "Field of Study in College, Employment Divergences, and Gender Wage Gap."
+* Language used : STATA (50%), R (30%), and LaTeX (20%).
 
 ## To-do list
 * Reflection: next project should doc "used data" "output" and their location.
