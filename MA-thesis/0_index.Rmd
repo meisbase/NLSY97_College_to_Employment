@@ -1,0 +1,142 @@
+---
+title: ""
+author: ""
+date: ""
+output: 
+  pdf_document:
+     latex_engine: xelatex
+  citation_package: biblatex
+geometry: "left = 2.5cm, right = 2cm, top = 2cm, bottom = 2cm"
+fontsize: 12pt
+header-includes:
+  - \usepackage{float}
+  - \usepackage{setspace}
+  - \usepackage{ragged2e}
+bibliography: bibliography.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r packages, include=FALSE, eval=F}
+#tinytex::install_tinytex()
+
+# Ref https://everyday.codes/tutorials/how-to-use-latex-in-rmarkdown/
+
+# Ref https://bookdown.org/yihui/rmarkdown-cookbook/latex-hardcore.html
+
+# https://ourcodingclub.github.io/tutorials/rmarkdown-dissertation/
+
+# github code
+# https://github.com/AnnaChirumbolo/dissertation_template_with_rmd/tree/main
+
+```
+
+<!-- Title page -->
+
+\pagenumbering{gobble}
+
+\begin{center}
+
+\vspace{9cm}
+
+\Large
+{\bf The Ohio State University}
+
+\Large
+{\bf Department of Sociology}
+
+
+\vspace{5cm}
+
+\Large
+{\bf College Education, Employment Divergences, \\and the Gender Wage Gap}
+
+\vspace{1 cm}
+
+\normalsize
+
+By
+
+\vspace{0.5 cm}
+
+\Large
+
+{\bf Mei-Yu Kuo}
+
+\vspace{2cm}
+
+\Large
+M.A. Thesis
+
+\vspace{3 cm}
+
+Committee Members: \\
+Vincent J. Roscigno (Chair), \\
+Hui Zheng, \\
+Rachel Dwyer, \\
+Fangqi Wen
+
+\vspace{1.5 cm}
+\normalsize
+January 2025
+
+\end{center}
+
+<!-- Table of Contents -->
+
+\newpage
+\begin{center}
+\tableofcontents
+\end{center}
+<!-- Begin of Content -->
+
+\pagenumbering{arabic}
+
+
+\newpage
+
+```{r abstract, child='1_abstract.Rmd'}
+```
+
+\newpage
+
+```{r intro, child = '2_intro.Rmd'}
+```
+
+\newpage
+
+```{r literature, child = '3_lit.Rmd'}
+```
+
+\newpage
+
+```{r methods, child = '4_method.Rmd'}
+```
+
+\newpage
+
+```{r results, child = '5_result.Rmd'}
+```
+
+\newpage
+
+```{r discussion, child = '6_discussion.Rmd'}
+```
+
+
+\newpage
+
+```{r appendix, child = '8_table_figure.Rmd'}
+```
+
+\newpage
+
+```{r appendix, child = '9_appendix.Rmd'}
+```
+
+\newpage
+
+```{r biblio, child = '7_bibliography.Rmd'}
+```

@@ -1,0 +1,46 @@
+---
+title: ''
+output: pdf_document
+header-includes:
+  - \usepackage{lmodern}  # Ensures consistent font styles
+---
+
+
+
+<!-- table 2, gender X college major and attachment -->
+
+\input{Stata_Outputs/Table/M_final.tex}
+
+<!-- Figure 2, gender diff in degree's effect. -->
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{Stata_Outputs/Figure/F4.png}
+    \caption{This is a sample image.}
+    \label{fig:sample-image}
+\end{figure}
+
+<!-- Figure 2, gender diff in degree's effect. -->
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{Stata_Outputs/Figure/F4.png}
+    \caption{This is a sample image.}
+    \label{fig:sample-image}
+\end{figure}
+
+<!-- Describe regression coefficients -->
+```{r, include=F}
+
+data <- mtcars
+model <- lm(mpg ~ wt + hp, data = data)
+coeff_wt <- coef(model)["wt"]
+coeff_hp <- coef(model)["hp"]
+
+```
+
+\textnormal{Regression coefficient for "wt" is `r round(coeff_wt, 3)`.}
+
+
+
+

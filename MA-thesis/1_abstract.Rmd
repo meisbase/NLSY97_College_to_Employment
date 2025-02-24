@@ -1,0 +1,26 @@
+---
+title: ''
+output: pdf_document
+header-includes:
+  - \setcounter{secnumdepth}{2}
+  - \usepackage{float}
+  - \usepackage{setspace}
+  - \usepackage{ragged2e}
+---
+
+
+
+\begin{center}
+
+\section*{Abstract}
+\addcontentsline{toc}{section}{\protect\numberline{}Abstract}
+
+\end{center}
+
+\begin{flushleft}
+\begin{spacing}{2}
+
+Gender and workplace stratification literatures consistently highlight wage inequalities for women compared to men. While partly due to occupational segregation and the devaluation of women’s work, these inequalities may also be sequential, tied to post-secondary educational backgrounds and divergences in labor market attachment over time. Drawing on NLSY97 data, I uniquely analyze gender wage disparities, field of study in college, and the impact of labor market attachment and detachment. Findings reveal significant differences across college majors: applied non-STEM and applied STEM degrees appear to be tied to stronger labor market attachment, yet women benefit less from applied non-STEM degrees compared to men—an inequality likely related to the concentration of women in care-centered majors. Although applied STEM degrees offer comparable advantages to men and women, women’s significant underrepresentation in such fields means that these advantages are disproportionately realized by men. Further analysis of wage gaps reveals that: (1) wage disparities across college majors can be partially explained by divergent degree of labor market attachment after earning a bachelor’s degree, and (2) earnings gains associated with greater labor market attachment are nearly double for men what they are for women. I conclude by discussing these patterns and what they mean for gendered labor market disparities, but also for conceptions of education-labor market connections.
+
+\end{spacing}
+\end{flushleft}

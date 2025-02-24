@@ -1,0 +1,11 @@
+---
+title: ''
+output: pdf_document
+bibliography: bibliography.bib  
+---
+
+# Reference
+
+\bibliography{bibliography}
+
+yello! Bibliography is not showing up.

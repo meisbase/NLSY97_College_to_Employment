@@ -1,0 +1,69 @@
+---
+title: ''
+output: pdf_document
+---
+
+<!-- STATA engine setup -->
+```{r}
+library(Statamarkdown)
+# ref
+# https://users.ssc.wisc.edu/~hemken/Stataworkshops/Statamarkdown/stata-and-r-markdown.html
+# note
+# you may have to run all the codes on STATA first, test if they work, and then copy paste those code here.
+```
+
+<!-- test -->
+```{stata}
+sysuse auto
+summarize
+tab1 foreign rep78
+ttest mpg, by(foreign)
+```
+
+\section{Table and Figures}
+
+<!-- Descriptive stats -->
+
+```{stata, include=F, echo=F}
+
+
+```
+
+
+<!-- Regression Results -->
+
+```{stata, include=F, echo=F}
+library(Statamarkdown)
+# Locate data
+# For Office-PC
+# cd "C:\Users\kuo.355\OneDrive - The Ohio State University\1_Second_Year_Paper\3_Data_Analysis\Data\cleaned_Data\R"
+	
+# For Macbook
+cd "/Users/kuomico/Library/CloudStorage/OneDrive-TheOhioStateUniversity/1_Second_Year_Paper/3_Data_Analysis/Data/Cleaned_Data/R"
+
+```
+
+
+<!-- table 2, gender X college major and attachment -->
+
+\input{Stata_Outputs/Table/M_final.tex}
+
+
+
+<!-- Figure 2, gender diff in degree's effect. -->
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{Stata_Outputs/Figure/F4.png}
+    \caption{This is a sample image.}
+    \label{fig:sample-image}
+\end{figure}
+
+<!-- Figure 2, gender diff in degree's effect. -->
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{Stata_Outputs/Figure/F4.png}
+    \caption{This is a sample image.}
+    \label{fig:sample-image}
+\end{figure}

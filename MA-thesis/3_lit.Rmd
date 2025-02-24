@@ -1,0 +1,39 @@
+---
+title: ''
+output: pdf_document
+header-includes:
+  - \setcounter{secnumdepth}{2}
+  - \usepackage{float}
+  - \usepackage{setspace}
+  - \usepackage{ragged2e}
+---
+
+
+\section{Literatrue Review}
+
+\vspace{0.5cm}
+
+\begin{spacing}{2}
+
+
+Write your methods here. In this tutorial you can use this already made file\\to add examples of figures and tables and explore knitr and kableExtra functionalities!
+
+
+\subsection{Gender and Earning Gap}
+
+123
+
+\subsection{Gender Discrimination in the Labor Market }
+
+123
+
+\subsection{Hypothesis}
+
+\begin{enumerate}
+\item  abc
+\item bcd
+\end{enumerate}
+
+\end{spacing}
+
+

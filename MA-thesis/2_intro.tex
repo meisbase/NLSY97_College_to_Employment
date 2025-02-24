@@ -1,0 +1,96 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\setcounter{secnumdepth}{2}
+\usepackage{float}
+\usepackage{setspace}
+\usepackage{ragged2e}
+\usepackage{etoolbox}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+\centering
+
+\section{Introduction}
+
+\vspace{0.5cm}
+
+\begin{flushleft}
+\begin{spacing}{2}
+
+In most countries, including the United States, the gender pay gap has narrowed since the 1970s, though it remains a significant issue (Our World in Data, 2018). Between 1970 and 2018, the women-to-men ratio of hourly wages increased from 0.61 to 0.83 but has stagnated since the 1990s, with the largest disparities observed among the top 10\% of earners (England, Levine, \& Mishel, 2020). This is despite the fact that women have been increasingly outpacing men in college completion (England et al, 2020; Yavorsky et al., 2019). It may be the case that credential and labor market disparities across the life course—i.e., through college, in the transition from higher education to employment, and relative to labor market attachment over time—might be at least partly responsible. \par
+
+\begin{tabbing}
+Most research on the gender wage gap has concentrated on the gendered STEM pipeline as a key source of unequal earnings. Specifically, scholars have analyzed disparities in college majors, particularly the persistence and completion of STEM degrees, as well as resulting gender segregation in occupations and industries (Kim, Tamborini, and Sakamoto; 2015; Mann \& DiPrete, 2013; VanHeuvelen \& Quadlin, 2021). Fewer studies, however, have explored how educational choices made during emerging adulthood shape individuals' long-term labor market experiences and attachments in particular. This is somewhat surprising as labor market attachment has long been a focal point for economists and family scholars investigating women’s occupational downgrading (Becker, 1985). More recently, this focus has expanded to include the growing prevalence of time-demanding, disproportionately high-paying occupations and the systemic advantages men enjoy in these roles, including their capacity to overwork (Cha \& Weeden, 2014; Goldin, 2014).
+
+\end{spacing}
+\end{flushleft}
+
+\textbackslash end\{tabbing\}
+
+\end{document}
