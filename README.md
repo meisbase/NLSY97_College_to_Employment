@@ -1,7 +1,7 @@
 # NLSY97_College_to_Employment
 * Last editted: 02/22/2025
 * This project is based on my master's thesis in OSU sociology: "Field of Study in College, Employment Divergences, and Gender Wage Gap."
-* Check out "Presentation/Thesis_Defense_Presentation.pdf" for an overview of my project!
+* Check out "Thesis_Defense_Presentation.pdf" for an overview of my project!
 * Language used : STATA (50%), R (30%), and LaTeX (20%).
 
 ## To-do list
@@ -12,6 +12,7 @@
 
 ## File Structure
 ```
+│── Thesis_Defense_Presentation.pdf
 ├── Code 
 │   ├── 1_csv_to_dta.do
 │   ├── 2_0_prepare_data.do
@@ -35,8 +36,6 @@
 │   ├── STATA_Outputs
 │   ├── 0_index.rmd
 │   ├── 1_abstract.rmd
-│── Presentation
-│   ├── Thesis_Defense_Presentation.pdf
 ├── Documents_and_Construction_of_Key_Vars
 ├── varlist.xlsx
 ├── Readme_when_download_new_NLSY97.txt
