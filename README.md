@@ -5,8 +5,6 @@
 
 ## To-do list
 * Reflection: next project should doc "used data" "output" and their location.
-* remove 2_emp_week_do. It is the outdated version of 2_emp.do.
-* remove 3_desc_stats.rmd, 2_reshape.rmd
 * upload data folder
 * upload MA-thesis folder
   * upload final tables and figures to STATA_Outputs folder.
